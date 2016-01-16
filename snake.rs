@@ -1,6 +1,5 @@
+#![feature(lang_items)]
 #![no_std]
-#![feature(macro_rules)]
-#![feature(globs)]
 
 use base::prelude::*;
 
@@ -13,11 +12,11 @@ static HEIGHT: uint = 20;
 static MAX_LENGTH: uint = 100;
 
 struct Arena {
-    data: [Tile, ..WIDTH*HEIGHT]
+    data: [Tile; WIDTH*HEIGHT]
 }
 
 impl Arena {
-    pub fn new() -> Arena { Arena { data: [Empty, ..WIDTH*HEIGHT] } }
+    pub fn new() -> Arena { Arena { data: [Empty; WIDTH*HEIGHT] } }
 
     pub fn set(&mut self, x: uint, y: uint, tile: Tile) {
         if x < WIDTH && y < HEIGHT {
@@ -27,7 +26,7 @@ impl Arena {
                 Snake => 0u16,
                 Food => 1u16 << 12
             };
-            gba::hw::write_vram16((0x400u + x + y * 32) as u32, bg_tile);
+            gba::hw::write_vram16((0x400usize + x + y * 32) as u32, bg_tile);
         }
     }
 
@@ -45,7 +44,7 @@ enum Dir { Up, Down, Left, Right }
 struct Game {
     arena: Arena,
     pos: Pos,
-    snake: [Pos, ..MAX_LENGTH],
+    snake: [Pos; MAX_LENGTH],
     length: uint,
     target_length: uint,
     dir: Dir,
@@ -58,7 +57,7 @@ impl Game {
         Game {
             arena: Arena::new(),
             pos: Pos { x: 15, y: 12 },
-            snake: [Pos { x: 0, y: 0 }, ..MAX_LENGTH],
+            snake: [Pos { x: 0, y: 0 }; MAX_LENGTH],
             length: 0,
             target_length: 5,
             dir: Up,
@@ -67,8 +66,8 @@ impl Game {
         }
     }
     fn reset(&mut self) {
-        for y in range(0u, 24u) {
-            for x in range(0u, 30u) {
+        for y in range(0usize, 24usize) {
+            for x in range(0usize, 30usize) {
                 self.arena.set(x, y, Empty);
             }
         }
@@ -92,7 +91,7 @@ impl Game {
             self.length += 1;
         } else {
             self.arena.set(self.snake[0].x, self.snake[0].y, Empty);
-            for i in range(0u, self.length) {
+            for i in range(0usize, self.length) {
                 self.snake[i].x = self.snake[i + 1].x;
                 self.snake[i].y = self.snake[i + 1].y;
             }
@@ -130,7 +129,7 @@ impl Game {
 }
 
 #[start]
-pub fn main(_: int, _: **u8) -> int {
+pub fn main(_: int, _: *const *const u8) -> int {
     let mut key_state = gba::KeyState::new();
     gba::hw::write_dispcnt(1 << 8);
     gba::hw::write_bg0cnt(1 << 8);

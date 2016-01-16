@@ -15,20 +15,20 @@ pub mod fail {
 
     #[inline]
     #[lang="fail_bounds_check"]
-    pub fn fail_bounds_check(_: *u8, _: uint, _: uint, _: uint) -> ! {
+    pub fn fail_bounds_check(_: *const u8, _: usize, _: usize, _: usize) -> ! {
         abort()
     }
 
     #[inline]
     #[lang="fail_"]
-    pub fn fail_(_: *u8, _: *u8, _: uint) -> ! {
+    pub fn fail_(_: *const u8, _: *const u8, _: usize) -> ! {
         abort()
     }
 }
 
 pub mod num {
     pub trait Num {
-        fn cmp(&self, o: &Self) -> int;
+        fn cmp(&self, o: &Self) -> isize;
         fn add(&self, o: &Self) -> Self;
         fn one() -> Self;
     }
@@ -36,7 +36,7 @@ pub mod num {
     macro_rules! num_impl(
         ($tpe: ty) => {
             impl Num for $tpe {
-                fn cmp(&self, o: &$tpe) -> int {
+                fn cmp(&self, o: &$tpe) -> isize {
                     if *self < *o { -1 }
                     else if *self > *o { 1 }
                     else { 0 }
@@ -45,10 +45,10 @@ pub mod num {
                 fn one() -> $tpe { 1 }
             }
         };
-    )
-    num_impl!(int)
-    num_impl!(uint)
-    num_impl!(u32)
+    );
+    num_impl!(isize);
+    num_impl!(usize);
+    num_impl!(u32);
 }
 
 pub mod clone {
@@ -62,11 +62,11 @@ pub mod clone {
                 fn clone(&self) -> $tpe { *self }
             }
         };
-    )
+    );
 
-    clone_impl!(int)
-    clone_impl!(uint)
-    clone_impl!(u32)
+    clone_impl!(isize);
+    clone_impl!(usize);
+    clone_impl!(u32);
 }
 
 pub mod iter {
@@ -112,7 +112,7 @@ pub mod rand {
         }
         pub fn next_u8(&mut self) -> u8 {
             let mut result = 0u8;
-            for i in range(0u, 8u) {
+            for i in 0..8 {
                 result |= (self.next_bool() as u8) << i;
             }
             result
